@@ -1,0 +1,379 @@
+:root {
+    --bg-color: #0d1117;
+    --card-bg: rgba(22, 27, 34, 0.7);
+    --border-color: #30363d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --accent-color: #58a6ff;
+    --accent-hover: #1f6feb;
+    --glass-bg: rgba(13, 17, 23, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.app-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header & Search */
+header {
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    background: linear-gradient(90deg, #58a6ff, #A371F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.8rem;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+/* Gallery Grid */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    min-height: 50vh;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent-color);
+}
+
+.card-image-wrapper {
+    width: 100%;
+    padding-top: 141.4%; /* Approximates A4 ratio (1:1.414) */
+    position: relative;
+    background-color: #1a1e23;
+    overflow: hidden;
+}
+
+.card-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: opacity 0.3s;
+}
+
+.card-info {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.filename {
+    font-size: 0.85rem;
+    font-weight: 500;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    align-self: flex-start;
+}
+
+.badge.pdf { background-color: rgba(255, 87, 87, 0.2); border: 1px solid rgba(255, 87, 87, 0.5); color: #ff6b6b; }
+.badge.jpg { background-color: rgba(87, 255, 137, 0.2); border: 1px solid rgba(87, 255, 137, 0.5); color: #6bff8f; }
+
+/* Magnifier Glass (Lupa) */
+.lupa {
+    position: fixed;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none; /* Crucial so it doesn't block hover events on cards */
+    display: none;
+    z-index: 9999;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    /* transition: transform 0.1s; */ /* Remove transition to map mouse perfectly */
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 1200px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-header h2 {
+    font-size: 1.2rem;
+    word-break: break-all;
+    margin-right: 2rem; /* space for close button */
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+    font-size: 2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+.modal-body {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+@media (max-width: 800px) {
+    .modal-body {
+        flex-direction: column;
+    }
+}
+
+.modal-preview {
+    flex: 1;
+    border-right: 1px solid var(--border-color);
+    background: #0d1117;
+    overflow: auto;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.modal-preview img, .modal-preview canvas {
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-text-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    position: relative;
+    background: rgba(13, 17, 23, 0.5);
+}
+
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.transcription-box {
+    width: 100%;
+    flex-grow: 1;
+    background: #0d1117;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 1rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: none;
+    line-height: 1.6;
+}
+
+.transcription-box:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.transcription-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(22, 27, 34, 0.9);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+/* Loaders */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(88, 166, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+.small-spinner {
+    width: 30px;
+    height: 30px;
+    border-width: 3px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none !important;
+}
